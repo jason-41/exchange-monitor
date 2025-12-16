@@ -23,11 +23,11 @@ class BankRateFetcher:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
         self.currency_map = {
-            'EUR': 'ŷԪ',
-            'USD': '��Ԫ',
-            'HKD': '�۱�',
-            'GBP': 'Ӣ��',
-            'JPY': '��Ԫ'
+            'EUR': '欧元',
+            'USD': '美元',
+            'HKD': '港币',
+            'GBP': '英镑',
+            'JPY': '日元'
         }
 
     def get_boc_rates(self, currency_code):
@@ -184,9 +184,9 @@ while True:
     
     with metrics_placeholder.container():
         c1, c2, c3 = st.columns(3)
-        c1.metric("ʵʱ���� (Yahoo)", f"{current_val:.4f}", f"{delta_percent:.2f}%")
-        c2.metric("�й����� (�ֻ�/�ֳ�)", f"{boc['spot_sell']} / {boc['cash_sell']}" if boc else "Loading...")
-        c3.metric("�������� (�ֻ�/�ֳ�)", f"{cmb['spot_sell']} / {cmb['cash_sell']}" if cmb else "Loading...")
+        c1.metric("实时汇率 (Yahoo)", f"{current_val:.4f}", f"{delta_percent:.2f}%")
+        c2.metric("中国银行 (现汇/现钞)", f"{boc['spot_sell']} / {boc['cash_sell']}" if boc else "Loading...")
+        c3.metric("招商银行 (现汇/现钞)", f"{cmb['spot_sell']} / {cmb['cash_sell']}" if cmb else "Loading...")
 
     # Chart
     fig = go.Figure()
@@ -249,6 +249,6 @@ while True:
     )
     chart_placeholder.plotly_chart(fig, use_container_width=True)
     
-    footer_placeholder.caption("Source: Yahoo Finance API & Bank Official Websites.  2025 Jason Cao.")
+    footer_placeholder.caption("Source: Yahoo Finance API & Bank Official Websites. © 2025 Jason Cao.")
 
-    time.sleep(1)
+    time.sleep(3)
