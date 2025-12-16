@@ -178,14 +178,19 @@ if not hist_data.empty:
     
     # Handle Timezones: Convert to local time (server time) to match datetime.now()
     if hist_data.index.tz is not None:
-        # Get local timezone from system
-        local_tz = datetime.now().astimezone().tzinfo
-        
-        # Convert data to local timezone
-        hist_data.index = hist_data.index.tz_convert(local_tz)
-        
-        # Remove timezone info to make it naive (display as "2023-12-16 14:00:00" without +01:00)
+        # 1. Convert to UTC first to standardize
+        hist_data.index = hist_data.index.tz_convert('UTC')
+        # 2. Remove timezone info to make it naive UTC
         hist_data.index = hist_data.index.tz_localize(None)
+        
+        # 3. Calculate Local Offset using time module (Robust)
+        # time.timezone is seconds WEST of UTC (so UTC+1 is -3600)
+        # time.altzone is seconds WEST of UTC during DST
+        is_dst = time.localtime().tm_isdst > 0
+        offset_secs = -time.altzone if (is_dst and time.daylight) else -time.timezone
+        
+        # 4. Apply offset
+        hist_data.index = hist_data.index + timedelta(seconds=offset_secs)
     
     cutoff_time = datetime.now() - timedelta(hours=range_cfg['hours'])
     
