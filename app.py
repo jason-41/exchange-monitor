@@ -88,7 +88,9 @@ time_ranges = {
     '24h': {'period': '5d',  'interval': '1m'},
     '48h': {'period': '5d',  'interval': '2m'},
     '7d':  {'period': '1mo', 'interval': '15m'},
-    '1m':  {'period': '3mo', 'interval': '60m'}
+    '1m':  {'period': '3mo', 'interval': '60m'},
+    '6m':  {'period': '6mo', 'interval': '1d'},
+    '1y':  {'period': '1y',  'interval': '1d'}
 }
 selected_range = st.sidebar.radio("Time Range", list(time_ranges.keys()), index=2)
 

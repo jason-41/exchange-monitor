@@ -149,7 +149,9 @@ class ExchangeRateMonitor:
             '24h': {'hours': 24,  'yf_period': '5d',  'yf_interval': '1m'},  # 1 minute resolution
             '48h': {'hours': 48,  'yf_period': '5d',  'yf_interval': '1m'},  # 1 minute resolution
             '7d':  {'hours': 168, 'yf_period': '1mo', 'yf_interval': '5m'}, # 15 minute resolution
-            '1m':  {'hours': 720, 'yf_period': '3mo', 'yf_interval': '60m'}  # 60 minute resolution
+            '1m':  {'hours': 720, 'yf_period': '3mo', 'yf_interval': '60m'}, # 60 minute resolution
+            '6m':  {'hours': 4320, 'yf_period': '6mo', 'yf_interval': '1d'}, # Daily resolution
+            '1y':  {'hours': 8760, 'yf_period': '1y',  'yf_interval': '1d'}  # Daily resolution
         }
         self.current_range = '48h'
         
