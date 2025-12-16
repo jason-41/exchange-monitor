@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import time
 import plotly.graph_objects as go
 import numpy as np
+import pytz
 
 # Page Config
 st.set_page_config(
@@ -94,6 +95,10 @@ time_ranges = {
 }
 selected_range = st.sidebar.radio("Time Range", list(time_ranges.keys()), index=1)
 
+# Timezone Selection
+common_timezones = ['UTC', 'Asia/Shanghai', 'Europe/Berlin', 'Europe/London', 'US/Eastern', 'US/Pacific']
+selected_timezone = st.sidebar.selectbox("Display Timezone", common_timezones, index=2) # Default to Berlin (UTC+1)
+
 # Theme Selection
 theme_map = {'Dark': 'plotly_dark', 'Light': 'plotly_white'}
 selected_theme = st.sidebar.radio("Theme", list(theme_map.keys()), index=0)
@@ -176,23 +181,21 @@ if not hist_data.empty:
     # Ensure index is datetime
     hist_data.index = pd.to_datetime(hist_data.index)
     
-    # Handle Timezones: Convert to local time (server time) to match datetime.now()
+    # Handle Timezones: Convert to User Selected Timezone
     if hist_data.index.tz is not None:
-        # 1. Convert to UTC first to standardize
-        hist_data.index = hist_data.index.tz_convert('UTC')
-        # 2. Remove timezone info to make it naive UTC
-        hist_data.index = hist_data.index.tz_localize(None)
-        
-        # 3. Calculate Local Offset using time module (Robust)
-        # time.timezone is seconds WEST of UTC (so UTC+1 is -3600)
-        # time.altzone is seconds WEST of UTC during DST
-        is_dst = time.localtime().tm_isdst > 0
-        offset_secs = -time.altzone if (is_dst and time.daylight) else -time.timezone
-        
-        # 4. Apply offset
-        hist_data.index = hist_data.index + timedelta(seconds=offset_secs)
+        # Convert to selected timezone
+        hist_data.index = hist_data.index.tz_convert(selected_timezone)
+    else:
+        # If naive, assume UTC then convert
+        hist_data.index = hist_data.index.tz_localize('UTC').tz_convert(selected_timezone)
     
-    cutoff_time = datetime.now() - timedelta(hours=range_cfg['hours'])
+    # Remove timezone info for clean plotting (Plotly handles naive datetimes as "wall time")
+    hist_data.index = hist_data.index.tz_localize(None)
+    
+    # Calculate cutoff time in the selected timezone
+    # We use datetime.now(tz) to get current time in target timezone, then strip tz for comparison
+    now_in_tz = datetime.now(pytz.timezone(selected_timezone)).replace(tzinfo=None)
+    cutoff_time = now_in_tz - timedelta(hours=range_cfg['hours'])
     
     # Smart Extension for Weekend/Holidays (Only for short ranges <= 7 days)
     if not hist_data.empty and range_cfg['hours'] <= 168:
@@ -239,7 +242,8 @@ while True:
         price = None
 
     if price:
-        st.session_state.live_data['times'].append(datetime.now())
+        # Store as UTC aware datetime to avoid ambiguity
+        st.session_state.live_data['times'].append(datetime.now(pytz.utc))
         st.session_state.live_data['rates'].append(price)
         # Keep buffer size reasonable (e.g., 1 hour of seconds)
         if len(st.session_state.live_data['times']) > 3600:
@@ -310,17 +314,26 @@ while True:
         ))
         
     # Live Line (Merged with connector to avoid extra hover labels)
-    live_times = st.session_state.live_data['times']
+    live_times_utc = st.session_state.live_data['times']
     live_rates = st.session_state.live_data['rates']
     
-    if live_times:
+    # Convert live times to selected timezone
+    target_tz = pytz.timezone(selected_timezone)
+    live_times_local = []
+    for t in live_times_utc:
+        if t.tzinfo is None:
+            # Handle legacy naive data (assume UTC if server is UTC)
+            t = pytz.utc.localize(t)
+        live_times_local.append(t.astimezone(target_tz).replace(tzinfo=None))
+    
+    if live_times_local:
         # Prepend the last history point to live data to create a seamless connection
         # This removes the need for a separate "connector" trace which causes duplicate hover labels
         if not hist_data.empty:
-            plot_times = [hist_data.index[-1]] + live_times
+            plot_times = [hist_data.index[-1]] + live_times_local
             plot_rates = [hist_data['Close'].iloc[-1]] + live_rates
         else:
-            plot_times = live_times
+            plot_times = live_times_local
             plot_rates = live_rates
             
         fig.add_trace(go.Scatter(
