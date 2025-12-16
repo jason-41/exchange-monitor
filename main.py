@@ -364,12 +364,12 @@ class ExchangeRateMonitor:
 
     def update_bank_text(self):
         """Updates the bank rate text widget."""
-        text = "银行外汇牌价\n(现汇 / 现钞)\n\n"
+        text = "银行外汇牌价\n(卖出价)\n\n"
         
         # BOC
         text += "中国银行:\n"
         if self.bank_rates['BOC']:
-            text += f"{self.bank_rates['BOC']['spot_sell']} / {self.bank_rates['BOC']['cash_sell']}\n"
+            text += f"{self.bank_rates['BOC']['spot_sell']}\n"
         else:
             text += "N/A\n"
             
@@ -378,7 +378,7 @@ class ExchangeRateMonitor:
         # CMB
         text += "招商银行:\n"
         if self.bank_rates['CMB']:
-            text += f"{self.bank_rates['CMB']['spot_sell']} / {self.bank_rates['CMB']['cash_sell']}"
+            text += f"{self.bank_rates['CMB']['spot_sell']}"
         else:
             text += "N/A"
             
