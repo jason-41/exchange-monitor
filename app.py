@@ -339,9 +339,21 @@ while True:
 
     fig.update_layout(
         title=dict(text=f"<b>Exchange Rate Trend ({selected_range})</b>", font=dict(color=chart_font_color)),
-        xaxis=dict(title="<b>Time</b>", title_font=dict(color=chart_font_color), tickfont=dict(color=chart_font_color), gridcolor=chart_grid),
+        xaxis=dict(
+            title="<b>Time</b>", 
+            title_font=dict(color=chart_font_color), 
+            tickfont=dict(color=chart_font_color), 
+            gridcolor=chart_grid,
+            showspikes=True,
+            spikemode='across',
+            spikesnap='cursor',
+            showline=True,
+            spikecolor=chart_font_color,
+            spikethickness=1
+        ),
         yaxis=dict(title="<b>CNY</b>", title_font=dict(color=chart_font_color), tickfont=dict(color=chart_font_color), range=y_range, tickformat=".4f", gridcolor=chart_grid),
         showlegend=False,
+        hovermode="x",
         height=500,
         template=theme_map[selected_theme],
         paper_bgcolor=chart_bg,
