@@ -122,6 +122,17 @@ else:
             background-color: #f0f0f0;
             color: #000000;
         }
+        /* Force black text for common elements in Light Mode */
+        .stMarkdown, .stText, .stMetricLabel, .stMetricValue, .stDataFrame, .stTable, .stRadio label, .stSelectbox label, p, span, div {
+            color: #000000 !important;
+        }
+        /* Sidebar background */
+        [data-testid="stSidebar"] {
+            background-color: #e0e0e0;
+        }
+        [data-testid="stSidebar"] * {
+            color: #000000 !important;
+        }
         </style>
         """,
         unsafe_allow_html=True
