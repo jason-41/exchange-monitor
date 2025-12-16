@@ -92,6 +92,10 @@ time_ranges = {
 }
 selected_range = st.sidebar.radio("Time Range", list(time_ranges.keys()), index=2)
 
+# Theme Selection
+theme_map = {'Dark': 'plotly_dark', 'Light': 'plotly_white'}
+selected_theme = st.sidebar.radio("Theme", list(theme_map.keys()), index=0)
+
 # Initialize Session State
 if 'live_data' not in st.session_state:
     st.session_state.live_data = {'times': [], 'rates': []}
@@ -192,6 +196,17 @@ while True:
     # Chart
     fig = go.Figure()
     
+    # Determine Colors based on Theme
+    if selected_theme == 'Dark':
+        c_up, c_down = '#ff3333', '#00ff00'
+        f_up, f_down = 'rgba(255, 50, 50, 0.2)', 'rgba(0, 255, 0, 0.2)'
+    else:
+        c_up, c_down = '#d62728', '#2ca02c' # Plotly standard red/green
+        f_up, f_down = 'rgba(214, 39, 40, 0.2)', 'rgba(44, 160, 44, 0.2)'
+        
+    line_col = c_up if delta >= 0 else c_down
+    fill_col = f_up if delta >= 0 else f_down
+    
     # History Line
     if not hist_data.empty:
         fig.add_trace(go.Scatter(
@@ -199,10 +214,10 @@ while True:
             y=hist_data['Close'],
             mode='lines',
             name='History',
-            line=dict(color='#ff3333' if delta >= 0 else '#00ff00', width=2, dash='solid'),
+            line=dict(color=line_col, width=2, dash='solid'),
             opacity=0.5,
             fill='tozeroy',
-            fillcolor='rgba(255, 50, 50, 0.2)' if delta >= 0 else 'rgba(0, 255, 0, 0.2)'
+            fillcolor=fill_col
         ))
         
         # Connect History to Live
@@ -212,10 +227,10 @@ while True:
                 y=[hist_data['Close'].iloc[-1], st.session_state.live_data['rates'][0]],
                 mode='lines',
                 showlegend=False,
-                line=dict(color='#ff3333' if delta >= 0 else '#00ff00', width=2, dash='solid'),
+                line=dict(color=line_col, width=2, dash='solid'),
                 opacity=0.5,
                 fill='tozeroy',
-                fillcolor='rgba(255, 50, 50, 0.2)' if delta >= 0 else 'rgba(0, 255, 0, 0.2)'
+                fillcolor=fill_col
             ))
 
     # Live Line
@@ -225,9 +240,9 @@ while True:
             y=st.session_state.live_data['rates'],
             mode='lines',
             name='Live',
-            line=dict(color='#ff3333' if delta >= 0 else '#00ff00', width=2),
+            line=dict(color=line_col, width=2),
             fill='tozeroy',
-            fillcolor='rgba(255, 50, 50, 0.2)' if delta >= 0 else 'rgba(0, 255, 0, 0.2)'
+            fillcolor=fill_col
         ))
 
     # Calculate dynamic Y-axis range
@@ -249,7 +264,7 @@ while True:
         yaxis_title="CNY",
         yaxis=dict(range=y_range, tickformat=".4f"),
         height=500,
-        template="plotly_dark",
+        template=theme_map[selected_theme],
         margin=dict(l=0, r=0, t=30, b=0)
     )
     chart_placeholder.plotly_chart(fig, use_container_width=True)
