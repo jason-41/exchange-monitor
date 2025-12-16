@@ -84,13 +84,13 @@ selected_currency = st.sidebar.radio("Currency", list(currencies.keys()))
 currency_info = currencies[selected_currency]
 
 time_ranges = {
-    '1h':  {'period': '1d',  'interval': '1m'},
-    '24h': {'period': '5d',  'interval': '1m'},
-    '48h': {'period': '5d',  'interval': '2m'},
-    '7d':  {'period': '1mo', 'interval': '15m'},
-    '1m':  {'period': '3mo', 'interval': '60m'},
-    '6m':  {'period': '6mo', 'interval': '1d'},
-    '1y':  {'period': '1y',  'interval': '1d'}
+    '1h':  {'period': '1d',  'interval': '1m', 'hours': 1},
+    '24h': {'period': '5d',  'interval': '1m', 'hours': 24},
+    '48h': {'period': '5d',  'interval': '2m', 'hours': 48},
+    '7d':  {'period': '1mo', 'interval': '15m', 'hours': 168},
+    '1m':  {'period': '3mo', 'interval': '60m', 'hours': 720},
+    '6m':  {'period': '6mo', 'interval': '1d', 'hours': 4320},
+    '1y':  {'period': '1y',  'interval': '1d', 'hours': 8760}
 }
 selected_range = st.sidebar.radio("Time Range", list(time_ranges.keys()), index=2)
 
@@ -168,7 +168,22 @@ def get_history(ticker, period, interval):
         return pd.DataFrame()
 
 ticker_symbol = currency_info['yf']
-hist_data = get_history(ticker_symbol, time_ranges[selected_range]['period'], time_ranges[selected_range]['interval'])
+range_cfg = time_ranges[selected_range]
+hist_data = get_history(ticker_symbol, range_cfg['period'], range_cfg['interval'])
+
+# Filter data by hours (Fix for incorrect x-axis range)
+if not hist_data.empty:
+    # Ensure index is datetime
+    hist_data.index = pd.to_datetime(hist_data.index)
+    
+    # Handle Timezones: Convert to local time (server time) to match datetime.now()
+    if hist_data.index.tz is not None:
+        local_now = datetime.now()
+        local_tz = local_now.astimezone().tzinfo
+        hist_data.index = hist_data.index.tz_convert(local_tz).tz_localize(None)
+    
+    cutoff_time = datetime.now() - timedelta(hours=range_cfg['hours'])
+    hist_data = hist_data[hist_data.index >= cutoff_time]
 
 # Placeholders
 title_placeholder = st.empty()
