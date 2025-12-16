@@ -330,7 +330,7 @@ while True:
         font=dict(color=chart_font_color),
         margin=dict(l=0, r=0, t=30, b=0)
     )
-    chart_placeholder.plotly_chart(fig, use_container_width=True, key=f"chart_{current_time}")
+    chart_placeholder.plotly_chart(fig, width='stretch')
     
     footer_placeholder.caption("Source: Yahoo Finance API & Bank Official Websites/API. © 2025 Jason Cao. Personal Use Only.")
 
