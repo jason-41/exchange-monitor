@@ -171,7 +171,7 @@ while True:
     # 3. Update UI
     
     # Title
-    title_placeholder.title(f"{selected_currency} {currency_info['name']} to CNY")
+    title_placeholder.title(f"{selected_currency} ({currency_info['name']}) to CNY")
 
     # Metrics
     current_val = price if price else (hist_data['Close'].iloc[-1] if not hist_data.empty else 0)
@@ -202,7 +202,7 @@ while True:
             line=dict(color='#ff3333' if delta >= 0 else '#00ff00', width=2, dash='solid'),
             opacity=0.5,
             fill='tozeroy',
-            fillcolor='rgba(255, 50, 50, 0.1)' if delta >= 0 else 'rgba(0, 255, 0, 0.1)'
+            fillcolor='rgba(255, 50, 50, 0.2)' if delta >= 0 else 'rgba(0, 255, 0, 0.2)'
         ))
         
         # Connect History to Live
@@ -215,7 +215,7 @@ while True:
                 line=dict(color='#ff3333' if delta >= 0 else '#00ff00', width=2, dash='solid'),
                 opacity=0.5,
                 fill='tozeroy',
-                fillcolor='rgba(255, 50, 50, 0.1)' if delta >= 0 else 'rgba(0, 255, 0, 0.1)'
+                fillcolor='rgba(255, 50, 50, 0.2)' if delta >= 0 else 'rgba(0, 255, 0, 0.2)'
             ))
 
     # Live Line
@@ -227,7 +227,7 @@ while True:
             name='Live',
             line=dict(color='#ff3333' if delta >= 0 else '#00ff00', width=2),
             fill='tozeroy',
-            fillcolor='rgba(255, 50, 50, 0.1)' if delta >= 0 else 'rgba(0, 255, 0, 0.1)'
+            fillcolor='rgba(255, 50, 50, 0.2)' if delta >= 0 else 'rgba(0, 255, 0, 0.2)'
         ))
 
     # Calculate dynamic Y-axis range
