@@ -113,6 +113,7 @@ if selected_theme == 'Dark':
     )
     chart_bg = '#000000'
     chart_grid = '#404040'
+    chart_font_color = '#e0e0e0'
 else:
     st.markdown(
         """
@@ -127,6 +128,7 @@ else:
     )
     chart_bg = '#f0f0f0'
     chart_grid = '#d0d0d0'
+    chart_font_color = '#000000'
 
 # Initialize Session State
 if 'live_data' not in st.session_state:
@@ -300,10 +302,11 @@ while True:
         template=theme_map[selected_theme],
         paper_bgcolor=chart_bg,
         plot_bgcolor=chart_bg,
+        font=dict(color=chart_font_color),
         margin=dict(l=0, r=0, t=30, b=0)
     )
     chart_placeholder.plotly_chart(fig, use_container_width=True)
     
-    footer_placeholder.caption("Source: Yahoo Finance API & Bank Official Websites. © 2025 Jason Cao. Personal Use Only.")
+    footer_placeholder.caption("Source: Yahoo Finance API & Bank Official Websites/API. © 2025 Jason Cao. Personal Use Only.")
 
     time.sleep(3)
