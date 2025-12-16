@@ -307,7 +307,7 @@ while True:
         title=dict(text=f"Exchange Rate Trend ({selected_range})", font=dict(color=chart_font_color)),
         xaxis=dict(title="Time", title_font=dict(color=chart_font_color), tickfont=dict(color=chart_font_color), gridcolor=chart_grid),
         yaxis=dict(title="CNY", title_font=dict(color=chart_font_color), tickfont=dict(color=chart_font_color), range=y_range, tickformat=".4f", gridcolor=chart_grid),
-        legend=dict(font=dict(color=chart_font_color)),
+        showlegend=False,
         height=500,
         template=theme_map[selected_theme],
         paper_bgcolor=chart_bg,
