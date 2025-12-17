@@ -96,11 +96,6 @@ class BankRateFetcher:
         except Exception as e:
             print(f"CMB Fetch Error: {e}")
             return None
-            return None
-            
-        except Exception as e:
-            print(f"CMB Fetch Error: {e}")
-            return None
 
 class ExchangeRateMonitor:
     def __init__(self, update_interval=2):
@@ -192,21 +187,21 @@ class ExchangeRateMonitor:
         self.ax_currency = self.fig.add_axes([0.925, 0.75, 0.05, 0.20])
         self.ax_currency.set_title("Currency", fontsize=10)
         self.radio_currency = RadioButtons(self.ax_currency, list(self.currencies.keys()), active=0,
-                                           activecolor='#ff00ff', radio_props={'s': [50]*5})
+                                           activecolor='#ff00ff', radio_props={'s': 50})
         self.radio_currency.on_clicked(self.change_currency)
 
         # Time Range Selection
         self.ax_range = self.fig.add_axes([0.925, 0.45, 0.05, 0.25])
         self.ax_range.set_title("Time Range", fontsize=10)
         self.radio_range = RadioButtons(self.ax_range, list(self.time_ranges.keys()), active=2, # Default 48h
-                                        activecolor='#00ff9d', radio_props={'s': [50]*5})
+                                        activecolor='#00ff9d', radio_props={'s': 50})
         self.radio_range.on_clicked(self.change_range)
         
         # Theme Selection
         self.ax_theme = self.fig.add_axes([0.925, 0.32, 0.05, 0.10])
         self.ax_theme.set_title("Theme", fontsize=10)
         self.radio_theme = RadioButtons(self.ax_theme, list(self.themes.keys()), active=0,
-                                        activecolor='#00aaff', radio_props={'s': [50]*2})
+                                        activecolor='#00aaff', radio_props={'s': 50})
         self.radio_theme.on_clicked(self.change_theme)      
         
         # Bank Rates Display
@@ -214,7 +209,7 @@ class ExchangeRateMonitor:
         self.ax_bank.axis('off')
         self.bank_text = self.ax_bank.text(0, 0.6, "Loading\nBank Rates...", 
                                            fontsize=9, va='center', ha='left')
-        self.bank_source_text = self.ax_bank.text(0, 0.2, "Source: Bank Websites", 
+        self.bank_source_text = self.ax_bank.text(0, 0.18, "Source:" '\n' "Bank Websites & APIs", 
                                            fontsize=8, va='bottom', ha='left', 
                                            color='#888888', style='italic', fontfamily='Arial')
         
@@ -271,9 +266,9 @@ class ExchangeRateMonitor:
         
         # Initialize Lines
         self.history_line, = self.ax.plot([], [], '-', color=theme['history_line'], alpha=0.5, 
-                                          label='History', linewidth=1.5)
+                                          label='History', linewidth=1.5, zorder=5)
         self.live_line, = self.ax.plot([], [], '-', color=theme['live_line_base'], 
-                                       label='Live', linewidth=1.5)
+                                       label='Live', linewidth=1.5, zorder=10)
         
         self.legend = None
             
@@ -294,6 +289,8 @@ class ExchangeRateMonitor:
         """Callback for time range change."""
         self.current_range = label
         print(f"Switched to {label} range")
+        self.live_times = []
+        self.live_rates = []
         self.refresh_data()
         
     def change_theme(self, label):
@@ -496,13 +493,15 @@ class ExchangeRateMonitor:
                 self.live_times.pop(0)
                 self.live_rates.pop(0)
             
-            self.live_line.set_data(self.live_times, self.live_rates)
+            # Prepare live line data (connect to history end)
+            plot_times = list(self.live_times)
+            plot_rates = list(self.live_rates)
             
-            # Connect history line to the start of live data
-            if not self.history_data.empty and self.live_times:
-                times = self.history_data.index.tolist() + [self.live_times[0]]
-                rates = self.history_data['Close'].tolist() + [self.live_rates[0]]
-                self.history_line.set_data(times, rates)
+            if not self.history_data.empty:
+                plot_times.insert(0, self.history_data.index[-1])
+                plot_rates.insert(0, self.history_data['Close'].iloc[-1])
+            
+            self.live_line.set_data(plot_times, plot_rates)
             
             # Calculate change based on visible history
             change = 0

@@ -195,6 +195,8 @@ if 'last_bank_update' not in st.session_state:
     st.session_state.last_bank_update = {'BOC': 0, 'CMB': 0}
 if 'last_currency' not in st.session_state:
     st.session_state.last_currency = selected_currency
+if 'last_range' not in st.session_state:
+    st.session_state.last_range = selected_range
 
 # Reset live data if currency changes
 if st.session_state.last_currency != selected_currency:
@@ -202,6 +204,11 @@ if st.session_state.last_currency != selected_currency:
     st.session_state.bank_rates = {'BOC': None, 'CMB': None}
     st.session_state.last_bank_update = {'BOC': 0, 'CMB': 0}
     st.session_state.last_currency = selected_currency
+
+# Reset live data if time range changes
+if st.session_state.last_range != selected_range:
+    st.session_state.live_data = {'times': [], 'rates': []}
+    st.session_state.last_range = selected_range
 
 # Fetch History (Cached)
 @st.cache_data(ttl=60)
